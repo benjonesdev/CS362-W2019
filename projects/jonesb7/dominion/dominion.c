@@ -5,12 +5,6 @@
 #include <math.h>
 #include <stdlib.h>
 
-int adventurerEffect(int currentPlayer, struct gameState *state, int drawntreasure, int* temphand, int z);
-int councilroomEffect(int handPos, int currentPlayer, struct gameState *state);
-int feastEffect();
-int greathallEffect(int handPos, int currentPlayer, struct gameState *state);
-int smithyEffect(int handPos, int currentPlayer, struct gameState *state);
-
 int compare(const void* a, const void* b) {
   if (*(int*)a > *(int*)b)
     return 1;
