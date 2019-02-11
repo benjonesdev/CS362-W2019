@@ -1,9 +1,5 @@
 /* -----------------------------------------------------------------------
- * Demonstration of how to write unit tests for dominion-base
- * Include the following lines in your makefile:
- *
- * testUpdateCoins: testUpdateCoins.c dominion.o rngs.o
- *      gcc -o testUpdateCoins -g  testUpdateCoins.c dominion.o rngs.o $(CFLAGS)
+ * This file is for testing the buyCard function from dominion.c
  * -----------------------------------------------------------------------
  */
 
@@ -11,72 +7,72 @@
 #include "dominion_helpers.h"
 #include <string.h>
 #include <stdio.h>
-#include <assert.h>
 #include "rngs.h"
 
-// set NOISY_TEST to 0 to remove printfs from output
-#define NOISY_TEST 1
-
 int main() {
-    int i;
-    int seed = 1000;
-    int numPlayer = 2;
-    int maxBonus = 10;
-    int p, r, handCount;
-    int bonus;
-    int k[10] = {adventurer, council_room, feast, gardens, mine
-               , remodel, smithy, village, baron, great_hall};
+    const int SEED = 1000;
+    const int NUM_PLAYER = 2;
+
+    int k[10] = {adventurer, council_room, feast, gardens, mine, 
+                       remodel, smithy, village, baron, great_hall};
     struct gameState G;
-    int maxHandCount = 5;
-    // arrays of all coppers, silvers, and golds
-    int coppers[MAX_HAND];
-    int silvers[MAX_HAND];
-    int golds[MAX_HAND];
-    for (i = 0; i < MAX_HAND; i++)
-    {
-        coppers[i] = copper;
-        silvers[i] = silver;
-        golds[i] = gold;
+    int failedTests = 0;
+
+
+    printf ("TESTING buyCard():\n");
+    printf("Initializing new game\n");
+    initializeGame(NUM_PLAYER, k, SEED, &G);
+    const int PLAYER = G.whoseTurn;
+    int handCount = G.handCount[PLAYER];
+    int coins = G.coins;
+printf("coins: %d\n", coins);
+    // No buys left
+    printf("Setting G.numBuys to 0\n");
+    G.numBuys = 0;
+    printf("Try to buy smithy\n");
+    buyCard(smithy, &G);
+    printf("\tG.handCount[%d] = %d, Expected = %d\n", PLAYER, G.handCount[PLAYER], handCount);
+    if (G.handCount[PLAYER] != handCount) failedTests++;
+    printf("\tG.coins = %d, Expected = %d\n", G.coins, coins);
+    if (G.coins != coins) failedTests++;
+    printf("Setting G.numBuys to 1\n");
+    G.numBuys = 1;
+    // No cards of that type left
+    printf("Setting G.supplyCount[smithy] to 0\n");
+    G.supplyCount[smithy] = 0;
+    printf("Try to buy smithy\n");
+    buyCard(smithy, &G);
+    printf("\tG.handCount[%d] = %d, Expected = %d\n", PLAYER, G.handCount[PLAYER], handCount);
+    if (G.handCount[PLAYER] != handCount) failedTests++;
+    printf("\tG.coins = %d, Expected = %d\n", G.coins, coins);
+    if (G.coins != coins) failedTests++;
+    printf("Setting G.supplyCount[smithy] to 5\n");
+    G.supplyCount[smithy] = 5;
+    // Not enough money
+    printf("Setting G.coins to 0\n");
+    G.coins = 0;
+    printf("Try to buy smithy\n");
+    buyCard(smithy, &G);
+    printf("\tG.handCount[%d] = %d, Expected = %d\n", PLAYER, G.handCount[PLAYER], handCount);
+    if (G.handCount[PLAYER] != handCount) failedTests++;
+    printf("\tG.coins = %d, Expected = %d\n", G.coins, 0);
+    if (G.coins != 0) failedTests++;
+    printf("Setting G.coins to 4\n");
+    G.coins = 4;
+    printf("Try to buy smithy\n");
+    buyCard(smithy, &G);
+    printf("\tG.handCount[%d] = %d, Expected = %d\n", PLAYER, G.handCount[PLAYER], handCount);
+    if (G.handCount[PLAYER] != handCount) failedTests++;
+    printf("\tG.coins = %d, Expected = %d\n", G.coins, 0);
+    if (G.coins != 0) failedTests++;
+    printf("\tG.discard[%d][%d] = %d, Expected = %d\n", 
+           PLAYER, G.discardCount[PLAYER]-1,  G.discard[PLAYER][G.discardCount[PLAYER]-1], smithy);
+    if (G.discard[PLAYER][G.discardCount[PLAYER]-1] != smithy) failedTests++;
+    if (failedTests == 0) {
+        printf("ALL TESTS PASSED!\n");
+    } else {
+        printf("FAILED %d TESTS\n", failedTests);
     }
-
-    printf ("TESTING updateCoins():\n");
-    for (p = 0; p < numPlayer; p++)
-    {
-        for (handCount = 1; handCount <= maxHandCount; handCount++)
-        {
-            for (bonus = 0; bonus <= maxBonus; bonus++)
-            {
-#if (NOISY_TEST == 1)
-                printf("Test player %d with %d treasure card(s) and %d bonus.\n", p, handCount, bonus);
-#endif
-                memset(&G, 23, sizeof(struct gameState));   // clear the game state
-                r = initializeGame(numPlayer, k, seed, &G); // initialize a new game
-                G.handCount[p] = handCount;                 // set the number of cards on hand
-                memcpy(G.hand[p], coppers, sizeof(int) * handCount); // set all the cards to copper
-                updateCoins(p, &G, bonus);
-#if (NOISY_TEST == 1)
-                printf("G.coins = %d, expected = %d\n", G.coins, handCount * 1 + bonus);
-#endif
-                assert(G.coins == handCount * 1 + bonus); // check if the number of coins is correct
-
-                memcpy(G.hand[p], silvers, sizeof(int) * handCount); // set all the cards to silver
-                updateCoins(p, &G, bonus);
-#if (NOISY_TEST == 1)
-                printf("G.coins = %d, expected = %d\n", G.coins, handCount * 2 + bonus);
-#endif
-                assert(G.coins == handCount * 2 + bonus); // check if the number of coins is correct
-
-                memcpy(G.hand[p], golds, sizeof(int) * handCount); // set all the cards to gold
-                updateCoins(p, &G, bonus);
-#if (NOISY_TEST == 1)
-                printf("G.coins = %d, expected = %d\n", G.coins, handCount * 3 + bonus);
-#endif
-                assert(G.coins == handCount * 3 + bonus); // check if the number of coins is correct
-            }
-        }
-    }
-
-    printf("All tests passed!\n");
 
     return 0;
 }

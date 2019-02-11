@@ -24,8 +24,8 @@ testAll: dominion.o testSuite.c
 interface.o: interface.h interface.c
 	gcc -c interface.c -g  $(CFLAGS)
 
-testUpdateCoins: unittest1.c dominion.o rngs.o
-	gcc -o testUpdateCoins -g  unittest1.c dominion.o rngs.o $(CFLAGS)
+testBuyCard: unittest1.c dominion.o rngs.o
+	gcc -o testBuyCard -g unittest1.c dominion.o rngs.o $(CFLAGS)
 
 testGainCard: unittest2.c dominion.o rngs.o
 	gcc -o testGainCard -g unittest2.c dominion.o rngs.o $(CFLAGS)
@@ -33,11 +33,42 @@ testGainCard: unittest2.c dominion.o rngs.o
 testDiscardCard: unittest3.c dominion.o rngs.o
 	gcc -o testDiscardCard -g unittest3.c dominion.o rngs.o $(CFLAGS)
 
+testIsGameOver: unittest4.c dominion.o rngs.o
+	gcc -o testIsGameOver -g unittest4.c dominion.o rngs.o $(CFLAGS)
+
+testSmithy: cardtest1.c dominion.o rngs.o
+	gcc -o testSmithy -g cardtest1.c dominion.o rngs.o $(CFLAGS)
+
+testAdventurer: cardtest2.c dominion.o rngs.o
+	gcc -o testAdventurer -g cardtest2.c dominion.o rngs.o $(CFLAGS)
+
+testGreatHall: cardtest3.c dominion.o rngs.o
+	gcc -o testGreatHall -g cardtest3.c dominion.o rngs.o $(CFLAGS)
+
 unittestresults: testGainCard dominion.o
 	echo "Result for running unit tests:" > unittestresults.out
+	echo "unittest1.c:" >> unittestresults.out
+	./testBuyCard >> unittestresults.out
+	gcov dominion.c >> unittestresults.out
 	echo "unittest2.c:" >> unittestresults.out
 	./testGainCard >> unittestresults.out
 	gcov dominion.c >> unittestresults.out
+	echo "unittest3.c:" >> unittestresults.out
+	./testDiscardCard >> unittestresults.out
+	gcov dominion.c >> unittestresults.out
+	echo "unittest4.c:" >> unittestresults.out
+	./testIsGameOver >> unittestresults.out
+	gcov dominion.c >> unittestresults.out
+	echo "cardtest1.c:" >> unittestresults.out
+	./testSmithy >> unittestresults.out
+	gcov dominion.c >> unittestresults.out
+	echo "cardtest2.c:" >> unittestresults.out
+	./testAdventurer >> unittestresults.out
+	gcov dominion.c >> unittestresults.out
+	echo "cardtest3.c:" >> unittestresults.out
+	./testGreatHall >> unittestresults.out
+	gcov dominion.c >> unittestresults.out
+	gcov dominion.c -b >> unittestresults.out
 
 runtests: testDrawCard 
 	./testDrawCard &> unittestresult.out
