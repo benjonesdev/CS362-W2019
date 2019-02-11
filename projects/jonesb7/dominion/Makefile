@@ -24,6 +24,21 @@ testAll: dominion.o testSuite.c
 interface.o: interface.h interface.c
 	gcc -c interface.c -g  $(CFLAGS)
 
+testUpdateCoins: unittest1.c dominion.o rngs.o
+	gcc -o testUpdateCoins -g  unittest1.c dominion.o rngs.o $(CFLAGS)
+
+testGainCard: unittest2.c dominion.o rngs.o
+	gcc -o testGainCard -g unittest2.c dominion.o rngs.o $(CFLAGS)
+
+testDiscardCard: unittest3.c dominion.o rngs.o
+	gcc -o testDiscardCard -g unittest3.c dominion.o rngs.o $(CFLAGS)
+
+unittestresults: testGainCard dominion.o
+	echo "Result for running unit tests:" > unittestresults.out
+	echo "unittest2.c:" >> unittestresults.out
+	./testGainCard >> unittestresults.out
+	gcov dominion.c >> unittestresults.out
+
 runtests: testDrawCard 
 	./testDrawCard &> unittestresult.out
 	gcov dominion.c >> unittestresult.out
