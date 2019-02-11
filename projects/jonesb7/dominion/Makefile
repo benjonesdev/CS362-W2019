@@ -45,7 +45,7 @@ testAdventurer: cardtest2.c dominion.o rngs.o
 testGreatHall: cardtest3.c dominion.o rngs.o
 	gcc -o testGreatHall -g cardtest3.c dominion.o rngs.o $(CFLAGS)
 
-unittestresults: testGainCard dominion.o
+unittestresults: testGainCard testBuyCard testDiscardCard testIsGameOver testSmithy testAdventurer testGreatHall dominion.o
 	echo "Result for running unit tests:" > unittestresults.out
 	echo "unittest1.c:" >> unittestresults.out
 	./testBuyCard >> unittestresults.out
