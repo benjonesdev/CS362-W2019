@@ -70,10 +70,37 @@ unittestresults: testGainCard testBuyCard testDiscardCard testIsGameOver testSmi
 	gcov dominion.c >> unittestresults.out
 	gcov dominion.c -b >> unittestresults.out
 
+randomtestcard1: randomtestcard1.c dominion.o rngs.o
+	gcc -o randomtestcard1 -g randomtestcard1.c dominion.o rngs.o $(CFLAGS)
+
+randomtestcard2: randomtestcard2.c dominion.o rngs.o
+	gcc -o randomtestcard2 -g randomtestcard2.c dominion.o rngs.o $(CFLAGS)
+
+randomtestadventurer: randomtestcard2.c dominion.o rngs.o
+	gcc -o randomtestadventurer -g randomtestadventurer.c dominion.o rngs.o $(CFLAGS)
+
+randomtestresults: randomtestcard1 randomtestcard2 randomtestadventurer
+	echo "Printing results to randomtestcard1.out"
+	./randomtestcard1 >> randomtestcard1.out
+	echo "gcov results" >> randomtestcard1.out
+	gcov dominion.c >> randomtestcard1.out
+	gcov -b -f dominion.c >> randomtestcard1.out
+	echo "Printing results to randomtestcard2.out"
+	./randomtestcard2 >> randomtestcard2.out
+	echo "gcov results" >> randomtestcard2.out
+	gcov dominion.c >> randomtestcard2.out
+	gcov -b -f dominion.c >> randomtestcard2.out
+	echo "Printing results to randomtestadventurer.out"
+	./randomtestadventurer >> randomtestadventurer.out
+	echo "gcov results" >> randomtestadventurer.out
+	gcov dominion.c >> randomtestadventurer.out
+	gcov -b -f dominion.c >> randomtestadventurer.out
+
 runtests: testDrawCard 
 	./testDrawCard &> unittestresult.out
 	gcov dominion.c >> unittestresult.out
 	cat dominion.c.gcov >> unittestresult.out
+
 
 
 player: player.c interface.o
